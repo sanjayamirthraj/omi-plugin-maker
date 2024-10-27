@@ -225,17 +225,18 @@ const PluginWizard = () => {
   };
 
   const handleSendToTeam = async () => {
-    const email = 'team@example.com'; // Replace with the actual team email
+    const fileInput = document.getElementById('image');
+    const file = fileInput?.files[0];
+
+    const formData = new FormData();
+    formData.append('pluginData', JSON.stringify(pluginData));
+    if (file) {
+      formData.append('file', file);
+    }
 
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        pluginData: pluginData,
-      }),
+      body: formData, // Send as FormData instead of JSON
     });
 
     const data = await response.json();
