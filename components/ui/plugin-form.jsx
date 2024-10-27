@@ -26,6 +26,7 @@ const PromptInfo = ({ icon, title, description, example }) => (
 );
 
 const PluginWizard = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);  // Add this state
   const [pluginData, setPluginData] = useState({
     id: '',
     name: '',
@@ -48,7 +49,6 @@ const PluginWizard = () => {
   });
   const [jsonOutput, setJsonOutput] = useState('');
   const [errors, setErrors] = useState({});
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -94,13 +94,6 @@ const PluginWizard = () => {
   };
 
   const handleSave = () => {
-    if (!isAuthenticated) {
-      if (confirm("You need to be logged in with GitHub to generate a plugin. Would you like to login now?")) {
-        handleGitHubLogin();
-      }
-      return;
-    }
-
     if (pluginData.capabilities.length === 0) {
       setErrors(prev => ({ ...prev, capabilities: 'Please select at least one capability.' }));
       return;
@@ -110,7 +103,6 @@ const PluginWizard = () => {
       return;
     }
 
-    // Create a copy of the plugin data
     const outputData = {
       ...pluginData,
       image: `/plugins/logos/${pluginData.image}`
@@ -193,43 +185,15 @@ const PluginWizard = () => {
     }));
   };
 
-  // Add this function to handle GitHub login
-  const handleGitHubLogin = async () => {
-    const clientId = 'Ov23lieNW7b4Wyw7APlQ';
-    const redirectUri = 'https://omi-plugin-maker.vercel.app/';
-    const scope = 'repo'; // Define the scopes you need
-
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+  const handleGitHubLogin = () => {
+    // Add GitHub login logic here later
+    console.log('GitHub login clicked');
   };
-
-  // Add this effect to check if the user is authenticated
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-
-    if (code) {
-      // Exchange the code for an access token
-      fetch('/api/auth/github', {
-        method: 'POST',
-        body: JSON.stringify({ code }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.accessToken) {
-            setIsAuthenticated(true);
-            // Handle successful authentication (e.g., store token, fetch user data)
-          }
-        })
-        .catch(error => console.error('Error during GitHub authentication:', error));
-    }
-  }, []);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
       <Card className="w-full max-w-4xl">
+
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl font-bold text-center">
             OMI Plugin Creator - Plugins made easy!
@@ -254,6 +218,7 @@ const PluginWizard = () => {
             </div>
           )}
         </CardHeader>
+
         <CardContent className="space-y-6 p-4 md:p-6">
           <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded text-sm md:text-base" role="alert">
             <p className="font-bold">Important Note:</p>
