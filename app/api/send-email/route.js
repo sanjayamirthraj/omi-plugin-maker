@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 export async function POST(req) {
-    const { email, pluginData } = await req.json();
+    const { pluginData } = await req.json();
 
     // Create a transporter object using SMTP
     const transporter = nodemailer.createTransport({
