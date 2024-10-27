@@ -12,26 +12,19 @@ export async function POST(req) {
         },
     });
 
-    // Hardcoded email template
+
     const emailTemplate = `
-    <h1>New Plugin Submission</h1>
-    <p>A new plugin has been submitted:</p>
-    <h2>Plugin Details</h2>
-    <ul>
-      <li><strong>ID:</strong> ${pluginData.id}</li>
-      <li><strong>Name:</strong> ${pluginData.name}</li>
-      <li><strong>Author:</strong> ${pluginData.author}</li>
-      <li><strong>Description:</strong> ${pluginData.description}</li>
-      <li><strong>Image:</strong> ${pluginData.image}</li>
-      <li><strong>Capabilities:</strong> ${pluginData.capabilities.join(', ')}</li>
-    </ul>
-    <p>Thank you!</p>
-  `;
+        <h1>New Plugin Submission</h1>
+        <p>A new plugin has been submitted:</p>
+        <h2>Plugin Details</h2>
+        <pre>${JSON.stringify(pluginData, null, 2)}</pre>
+        <p>Thank you!</p>
+      `;
 
     // Set up email data
     const mailOptions = {
-        from: '"Plugin Team" <no-reply@example.com>', // Sender address
-        to: email, // List of recipients
+        from: '"Plugin Team" <sanjay.amirthraj@gmail.com>', // Sender address
+        to: 'sanjay.amirthraj@gmail.com', // List of recipients
         subject: 'New Plugin Submission', // Subject line
         html: emailTemplate, // HTML body content
     };

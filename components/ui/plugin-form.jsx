@@ -224,6 +224,28 @@ const PluginWizard = () => {
     }
   };
 
+  const handleSendToTeam = async () => {
+    const email = 'team@example.com'; // Replace with the actual team email
+
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        pluginData: pluginData,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert(data.message);
+    } else {
+      alert(data.error);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
       <Card className="w-full max-w-4xl">
@@ -428,7 +450,7 @@ const PluginWizard = () => {
               </pre>
               <div className="flex justify-center">
                 <Button
-                  onClick={() => console.log('Sending description to team...')}
+                  onClick={handleSendToTeam} // Call the send function
                   className="bg-green-500 hover:bg-green-600 text-white px-8"
                 >
                   <MessageSquare className="mr-2 h-5 w-5" /> Send Plugin to Team
