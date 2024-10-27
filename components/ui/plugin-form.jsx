@@ -306,6 +306,15 @@ const PluginWizard = () => {
 
   // Add this effect to check if the user is authenticated
   useEffect(() => {
+    // First check if we already have a token in localStorage
+    const storedToken = localStorage.getItem('githubAccessToken');
+    if (storedToken) {
+      setIsAuthenticated(true);
+      setAccessToken(storedToken);
+      return;
+    }
+
+    // Then check for the code parameter
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
@@ -320,13 +329,28 @@ const PluginWizard = () => {
         .then(response => response.json())
         .then(data => {
           if (data.accessToken) {
+            // Store the token in localStorage
+            localStorage.setItem('githubAccessToken', data.accessToken);
             setIsAuthenticated(true);
-            setAccessToken(data.accessToken); // Store the access token
+            setAccessToken(data.accessToken);
+
+            // Clean up the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
           }
         })
-        .catch(error => console.error('Error during GitHub authentication:', error));
+        .catch(error => {
+          console.error('Error during GitHub authentication:', error);
+          localStorage.removeItem('githubAccessToken'); // Clear any invalid token
+        });
     }
   }, []);
+
+  // Add a logout function
+  const handleLogout = () => {
+    localStorage.removeItem('githubAccessToken');
+    setIsAuthenticated(false);
+    setAccessToken(null);
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
