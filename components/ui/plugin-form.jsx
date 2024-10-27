@@ -195,13 +195,26 @@ const PluginWizard = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check for spaces in filename
+      if (file.name.includes(' ')) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Image filename cannot contain spaces. Please rename the file and try again.'
+        }));
+        e.target.value = ''; // Reset the input
+        return;
+      }
+
+      // Check file extension
       if (!/\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
         setErrors(prev => ({
           ...prev,
           image: 'Image must be a .jpg, .jpeg, .png, or .gif file'
         }));
+        e.target.value = ''; // Reset the input
         return;
       }
+
       setPluginData(prev => ({ ...prev, image: file.name }));
       setErrors(prev => {
         const newErrors = { ...prev };
