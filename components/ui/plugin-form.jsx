@@ -5,8 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Save, MessageSquare, Brain, Info, FileText, Image, ExternalLink, AlertTriangle, Link, Upload } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Save, MessageSquare, Brain, Info, FileText, ExternalLink, AlertTriangle, Link, Upload } from 'lucide-react'
+import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 import { siGithub } from 'simple-icons'
 
@@ -26,7 +26,7 @@ const PromptInfo = ({ icon, title, description, example }) => (
 );
 
 const PluginWizard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);  // Add this state
+  const [isAuthenticated] = useState(false);  // Add this state
   const [pluginData, setPluginData] = useState({
     id: '',
     name: '',
