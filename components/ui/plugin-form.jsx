@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Save, MessageSquare, Brain, Info, FileText, Image, ExternalLink, AlertTriangle, Link } from 'lucide-react'
+import { Save, MessageSquare, Brain, Info, FileText, Image, ExternalLink, AlertTriangle, Link, Upload } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 import { siGithub } from 'simple-icons'
@@ -119,6 +119,7 @@ const PluginWizard = () => {
     }
 
     setJsonOutput(JSON.stringify(outputData, null, 2));
+    console.log('JSON Output:', JSON.stringify(outputData, null, 2)); // Add this line
   };
 
   const ExternalIntegrationFields = () => (
@@ -188,6 +189,26 @@ const PluginWizard = () => {
   const handleGitHubLogin = () => {
     // Add GitHub login logic here later
     console.log('GitHub login clicked');
+  };
+
+  // Add this function to handle file upload
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!/\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Image must be a .jpg, .jpeg, .png, or .gif file'
+        }));
+        return;
+      }
+      setPluginData(prev => ({ ...prev, image: file.name }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.image;
+        return newErrors;
+      });
+    }
   };
 
   return (
@@ -358,10 +379,16 @@ const PluginWizard = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="image" className="flex items-center space-x-2">
-                  <Image className="w-5 h-5 text-red-500" />
-                  <span>Image Filename</span>
+                  <Upload className="w-5 h-5 text-red-500" />
+                  <span>Plugin Logo</span>
                 </Label>
-                <Input id="image" name="image" value={pluginData.image} onChange={handleInputChange} placeholder="your-plugin-logo.jpg" />
+                <Input
+                  id="image"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.gif"
+                  onChange={handleFileUpload}
+                  className="cursor-pointer"
+                />
                 {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
               </div>
             </div>
@@ -374,9 +401,11 @@ const PluginWizard = () => {
             </div>
           </div>
 
-          <Button onClick={handleSave} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-            <Save className="mr-2 h-5 w-5" /> Generate JSON
-          </Button>
+          <div className="flex justify-center">
+            <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white px-8">
+              <Save className="mr-2 h-5 w-5" /> Generate JSON
+            </Button>
+          </div>
 
           {jsonOutput && (
             <div className="mt-6 space-y-4">
@@ -384,6 +413,14 @@ const PluginWizard = () => {
               <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
                 {jsonOutput}
               </pre>
+              <div className="flex justify-center">
+                <Button
+                  onClick={() => console.log('Sending description to team...')}
+                  className="bg-green-500 hover:bg-green-600 text-white px-8"
+                >
+                  <MessageSquare className="mr-2 h-5 w-5" /> Send Plugin to Team
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
