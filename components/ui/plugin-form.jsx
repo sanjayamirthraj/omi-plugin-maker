@@ -184,13 +184,15 @@ const PluginWizard = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-8">
-      <Card className="w-full max-w-4xl p-6">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
+      <Card className="w-full max-w-4xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">OMI Plugin Creator - Plugins made easy!</CardTitle>
+          <CardTitle className="text-xl md:text-2xl font-bold text-center">
+            OMI Plugin Creator - Plugins made easy!
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert">
+        <CardContent className="space-y-6 p-4 md:p-6">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded text-sm md:text-base" role="alert">
             <p className="font-bold">Important Note:</p>
             <p>This tool is designed to generate the JSON file for your plugin. Once you have generated the JSON, you still need to follow the directions on the link below to submit it for approval.</p>
             <a href="https://docs.omi.me/docs/developer/apps/Submitting" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center mt-2">
@@ -201,8 +203,8 @@ const PluginWizard = () => {
 
           <div className="space-y-4">
             <Label className="font-semibold text-lg">Capabilities</Label>
-            <div className="flex space-x-4">
-              <div className="flex-1 bg-blue-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+            <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+              <div className="w-full md:flex-1 bg-blue-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="chat"
@@ -216,7 +218,7 @@ const PluginWizard = () => {
                   </Label>
                 </div>
               </div>
-              <div className="flex-1 bg-purple-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+              <div className="w-full md:flex-1 bg-purple-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="memories"
@@ -230,7 +232,7 @@ const PluginWizard = () => {
                   </Label>
                 </div>
               </div>
-              <div className="flex-1 bg-green-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+              <div className="w-full md:flex-1 bg-green-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="external_integration"
@@ -303,7 +305,7 @@ const PluginWizard = () => {
 
           <div className="space-y-4">
             <Label className="font-semibold">Plugin Metadata</Label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="id" className="flex items-center space-x-2">
                   <Info className="w-5 h-5 text-blue-500" />
@@ -351,7 +353,7 @@ const PluginWizard = () => {
           {jsonOutput && (
             <div className="mt-6 space-y-4">
               <Label className="font-semibold">JSON Output</Label>
-              <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
+              <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
                 {jsonOutput}
               </pre>
             </div>
