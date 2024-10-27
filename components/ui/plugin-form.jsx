@@ -49,7 +49,6 @@ const PluginWizard = () => {
   const [jsonOutput, setJsonOutput] = useState('');
   const [errors, setErrors] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [accessToken, setAccessToken] = useState(null); // State to store the GitHub access token
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -94,7 +93,7 @@ const PluginWizard = () => {
     });
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!isAuthenticated) {
       if (confirm("You need to be logged in with GitHub to generate a plugin. Would you like to login now?")) {
         handleGitHubLogin();
@@ -127,108 +126,7 @@ const PluginWizard = () => {
       delete outputData.external_integration;
     }
 
-    // Convert output data to JSON
-    const jsonOutput = JSON.stringify(outputData, null, 2);
-    setJsonOutput(jsonOutput);
-
-    // Create a pull request with the JSON data
-    try {
-      await createPullRequest(jsonOutput);
-    } catch (error) {
-      console.error('Error creating pull request:', error);
-      alert('Failed to create pull request. Please try again.');
-    }
-  };
-
-  const createPullRequest = async (jsonData) => {
-    const repoOwner = 'BasedHardware';
-    const repoName = 'omi';
-    const filePath = 'community-plugins.json';
-    const branchName = `update-plugin-${Date.now()}`; // Unique branch name
-    const commitMessage = 'Add new plugin data from the plugin creator';
-    const prTitle = 'Add new plugin data';
-    const prBody = 'This PR adds new plugin data to the community-plugins.json file.';
-
-    try {
-      // Step 1: Fetch the existing JSON data
-      const existingDataResponse = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `token ${accessToken}`,
-          'Accept': 'application/vnd.github.v3.raw', // Get raw content
-        }
-      });
-
-      const existingData = await existingDataResponse.json();
-      const existingJson = JSON.parse(atob(existingData.content)); // Decode base64 content
-
-      // Step 2: Merge the existing data with the new data
-      const mergedData = [...existingJson, ...JSON.parse(jsonData)]; // Assuming jsonData is an array
-
-      // Step 3: Create a new branch
-      await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/refs`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `token ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ref: `refs/heads/${branchName}`,
-          sha: (await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/refs/heads/main`).then(res => res.json())).object.sha // Get the SHA of the latest commit on the main branch
-        })
-      });
-
-      // Step 4: Create a new commit
-      const commitResponse = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/commits`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `token ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: commitMessage,
-          tree: (await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/refs/heads/main`).then(res => res.json())).object.sha,
-          parents: [(await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/refs/heads/main`).then(res => res.json())).object.sha]
-        })
-      });
-
-      const commitData = await commitResponse.json();
-
-      // Step 5: Update the file with the merged JSON data
-      await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: commitMessage,
-          content: btoa(JSON.stringify(mergedData, null, 2)), // Encode the merged data in base64
-          sha: commitData.sha, // Use the commit SHA from the previous step
-          branch: branchName
-        })
-      });
-
-      // Step 6: Create a pull request
-      await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/pulls`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `token ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: prTitle,
-          body: prBody,
-          head: branchName,
-          base: 'main' // Replace with the base branch you want to merge into
-        })
-      });
-
-      alert('Pull request created successfully!');
-    } catch (error) {
-      console.error('Error creating pull request:', error);
-      alert('Failed to create pull request. Please try again.');
-    }
+    setJsonOutput(JSON.stringify(outputData, null, 2));
   };
 
   const ExternalIntegrationFields = () => (
@@ -306,19 +204,11 @@ const PluginWizard = () => {
 
   // Add this effect to check if the user is authenticated
   useEffect(() => {
-    // First check if we already have a token in localStorage
-    const storedToken = localStorage.getItem('githubAccessToken');
-    if (storedToken) {
-      setIsAuthenticated(true);
-      setAccessToken(storedToken);
-      return;
-    }
-
-    // Then check for the code parameter
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
     if (code) {
+      // Exchange the code for an access token
       fetch('/api/auth/github', {
         method: 'POST',
         body: JSON.stringify({ code }),
@@ -329,28 +219,13 @@ const PluginWizard = () => {
         .then(response => response.json())
         .then(data => {
           if (data.accessToken) {
-            // Store the token in localStorage
-            localStorage.setItem('githubAccessToken', data.accessToken);
             setIsAuthenticated(true);
-            setAccessToken(data.accessToken);
-
-            // Clean up the URL
-            window.history.replaceState({}, document.title, window.location.pathname);
+            // Handle successful authentication (e.g., store token, fetch user data)
           }
         })
-        .catch(error => {
-          console.error('Error during GitHub authentication:', error);
-          localStorage.removeItem('githubAccessToken'); // Clear any invalid token
-        });
+        .catch(error => console.error('Error during GitHub authentication:', error));
     }
   }, []);
-
-  // Add a logout function
-  const handleLogout = () => {
-    localStorage.removeItem('githubAccessToken');
-    setIsAuthenticated(false);
-    setAccessToken(null);
-  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
@@ -360,7 +235,7 @@ const PluginWizard = () => {
             OMI Plugin Creator - Plugins made easy!
           </CardTitle>
           {!isAuthenticated && (
-            <div className="flex justify-center mt-16">
+            <div className="flex justify-center mt-8">
               <Button
                 variant="outline"
                 className="bg-[#24292e] text-white hover:bg-[#1c2024] border-[#24292e] hover:border-[#1c2024] transition-all duration-200 ease-in-out flex items-center justify-center gap-3 py-5 px-6 text-base font-medium rounded-full shadow-sm hover:shadow-md"
