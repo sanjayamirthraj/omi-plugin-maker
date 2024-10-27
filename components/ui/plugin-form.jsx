@@ -5,10 +5,10 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Save, MessageSquare, Brain, Info, FileText, ExternalLink, AlertTriangle, Link, Upload } from 'lucide-react'
+import { Save, MessageSquare, Brain, Info, FileText, AlertTriangle, Link, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
-import { siGithub } from 'simple-icons'
+// import { siGithub } from 'simple-icons'
 
 
 const PromptInfo = ({ icon, title, description, example }) => (
@@ -26,7 +26,7 @@ const PromptInfo = ({ icon, title, description, example }) => (
 );
 
 const PluginWizard = () => {
-  const [isAuthenticated] = useState(false);  // Add this state
+  // const [isAuthenticated] = useState(false);  // Add this state
   const [pluginData, setPluginData] = useState({
     id: '',
     name: '',
@@ -186,10 +186,10 @@ const PluginWizard = () => {
     }));
   };
 
-  const handleGitHubLogin = () => {
-    // Add GitHub login logic here later
-    console.log('GitHub login clicked');
-  };
+  // const handleGitHubLogin = () => {
+  //   // Add GitHub login logic here later
+  //   console.log('GitHub login clicked');
+  // };
 
   // Add this function to handle file upload
   const handleFileUpload = (e) => {
