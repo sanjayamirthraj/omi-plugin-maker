@@ -254,7 +254,7 @@ const PluginWizard = () => {
           <CardTitle className="text-xl md:text-2xl font-bold text-center">
             OMI Plugin Creator - Plugins made easy!
           </CardTitle>
-          {!isAuthenticated && (
+          {/* {!isAuthenticated && (
             <div className="flex justify-center mt-8">
               <Button
                 variant="outline"
@@ -272,18 +272,18 @@ const PluginWizard = () => {
                 <span>Continue with GitHub</span>
               </Button>
             </div>
-          )}
+          )} */}
         </CardHeader>
 
         <CardContent className="space-y-6 p-4 md:p-6">
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded text-sm md:text-base" role="alert">
+          {/* <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded text-sm md:text-base" role="alert">
             <p className="font-bold">Important Note:</p>
             <p>This tool is designed to generate the JSON file for your plugin. Once you have generated the JSON, you still need to follow the directions on the link below to submit it for approval.</p>
             <a href="https://docs.omi.me/docs/developer/apps/Submitting" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center mt-2">
               View full documentation
               <ExternalLink className="w-4 h-4 ml-1" />
             </a>
-          </div>
+          </div> */}
 
           <div className="space-y-4">
             <Label className="font-semibold text-lg">Capabilities</Label>
