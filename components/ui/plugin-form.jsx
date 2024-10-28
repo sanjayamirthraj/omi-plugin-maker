@@ -152,13 +152,14 @@ const PluginWizard = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="setup_completed_url">Setup Completed URL (Optional)</Label>
+          <Label htmlFor="setup_completed_url">Setup Completed URL</Label>
           <Input
             id="setup_completed_url"
             name="setup_completed_url"
             value={pluginData.external_integration.setup_completed_url}
             onChange={(e) => handleExternalIntegrationChange('setup_completed_url', e.target.value)}
             placeholder="https://your-setup-completed-url.com"
+            required
           />
         </div>
         <div className="space-y-2">
@@ -181,7 +182,7 @@ const PluginWizard = () => {
       ...prev,
       external_integration: {
         ...prev.external_integration,
-        [field]: field === 'setup_completed_url' && value.trim() === '' ? null : value
+        [field]: value
       }
     }));
   };
