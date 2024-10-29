@@ -253,7 +253,8 @@ const PluginWizard = () => {
     // Create plugin data
     const pluginDataToSend = {
       ...pluginData,
-      image: `/plugins/logos/${pluginData.image}`
+      image: `/plugins/logos/${pluginData.image}`,
+      email: pluginData.email  // Include email in plugin data
     };
 
     // Remove capabilities that aren't enabled
@@ -270,6 +271,7 @@ const PluginWizard = () => {
     // Append data to formData
     formData.append('pluginData', JSON.stringify(pluginDataToSend));
     formData.append('pluginInstructions', setupInstructions);
+    formData.append('userEmail', pluginData.email); // Add email separately
     if (file) {
       formData.append('pluginLogo', file);
     }
@@ -444,6 +446,22 @@ const PluginWizard = () => {
                 </Label>
                 <Input id="id" name="id" value={pluginData.id} onChange={handleInputChange} placeholder="your-plugin-id" />
                 {errors.id && <p className="text-red-500 text-sm">{errors.id}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center space-x-2">
+                  <MessageSquare className="w-5 h-5 text-orange-500" />
+                  <span>Email Address</span>
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={pluginData.email}
+                  onChange={handleInputChange}
+                  placeholder="your@email.com"
+                  required
+                />
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center space-x-2">

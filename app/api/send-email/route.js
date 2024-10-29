@@ -7,7 +7,8 @@ export async function POST(req) {
         const pluginData = JSON.parse(formData.get('pluginData'));
         const pluginLogo = formData.get('pluginLogo');
         const pluginInstructions = formData.get('pluginInstructions');
-        console.log("pluginInstructions", pluginInstructions);
+        const userEmail = formData.get('userEmail');
+
         // Create a transporter object using SMTP
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -21,6 +22,11 @@ export async function POST(req) {
         const emailTemplate = `
             <h1>New Plugin Submission</h1>
             
+            <h2>Submitter's Email</h2>
+            <p style="background-color: #f5f5f5; padding: 1rem; border-radius: 4px;">
+                ${userEmail}
+            </p>
+            
             <h2>Plugin Details</h2>
             <pre style="background-color: #f5f5f5; padding: 1rem; border-radius: 4px;">
                 ${JSON.stringify(pluginData, null, 2)}
@@ -28,7 +34,7 @@ export async function POST(req) {
 
             <h2>Setup Instructions</h2>
             <pre style="background-color: #f5f5f5; padding: 1rem; border-radius: 4px;">
-                ${pluginInstructions}
+                ${pluginInstructions || 'No setup instructions provided'}
             </pre>
 
             ${pluginLogo ? '<p>Plugin logo is attached to this email.</p>' : ''}
@@ -50,6 +56,7 @@ export async function POST(req) {
         const mailOptions = {
             from: '"Plugin Team" <sanjay.amirthraj@gmail.com>',
             to: 'sanjay.amirthraj@gmail.com',
+            replyTo: userEmail, // Add reply-to field with user's email
             subject: `New Plugin Submission: ${pluginData.name}`,
             html: emailTemplate,
             attachments,
