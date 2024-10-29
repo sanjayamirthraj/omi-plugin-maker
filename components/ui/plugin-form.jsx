@@ -121,7 +121,21 @@ const PluginWizard = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setPluginData(prev => ({ ...prev, [name]: value }));
+    setPluginData(prev => {
+      const updates = { [name]: value };
+
+      // Automatically generate ID when name changes
+      if (name === 'name') {
+        updates.id = value
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+          .replace(/\s+/g, '-')         // Replace spaces with dashes
+          .replace(/-+/g, '-')          // Replace multiple dashes with single dash
+          .trim();
+      }
+
+      return { ...prev, ...updates };
+    });
     validateField(name, value);
   };
 
@@ -449,12 +463,25 @@ const PluginWizard = () => {
             <Label className="font-semibold">Plugin Metadata</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label htmlFor="name" className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-green-500" />
+                  <span>Plugin Name</span>
+                </Label>
+                <Input id="name" name="name" value={pluginData.name} onChange={handleInputChange} placeholder="Your Plugin Name" />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="id" className="flex items-center space-x-2">
                   <Info className="w-5 h-5 text-blue-500" />
                   <span>Plugin ID</span>
                 </Label>
-                <Input id="id" name="id" value={pluginData.id} onChange={handleInputChange} placeholder="your-plugin-id" />
-                {errors.id && <p className="text-red-500 text-sm">{errors.id}</p>}
+                <Input
+                  id="id"
+                  name="id"
+                  value={pluginData.id}
+                  readOnly
+                  className="bg-gray-100"
+                  placeholder="auto-generated-from-name"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center space-x-2">
@@ -471,13 +498,6 @@ const PluginWizard = () => {
                   required
                 />
                 {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center space-x-2">
-                  <FileText className="w-5 h-5 text-green-500" />
-                  <span>Plugin Name</span>
-                </Label>
-                <Input id="name" name="name" value={pluginData.name} onChange={handleInputChange} placeholder="Your Plugin Name" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="author" className="flex items-center space-x-2">
