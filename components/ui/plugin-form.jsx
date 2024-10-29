@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Save, MessageSquare, Brain, Info, FileText, AlertTriangle, Link, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useCallback, React } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 // import { siGithub } from 'simple-icons'
 
@@ -25,8 +25,75 @@ const PromptInfo = ({ icon, title, description, example }) => (
   </div>
 );
 
+// Move ExternalIntegrationFields outside of PluginWizard
+const ExternalIntegrationFields = ({ pluginData, onFieldChange }) => (
+  <div className="space-y-4">
+    <Label className="font-semibold">External Integration Settings</Label>
+    <div className="grid gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="triggers_on">Triggers On</Label>
+        <Select
+          value={pluginData.external_integration.triggers_on}
+          onValueChange={(value) => onFieldChange('triggers_on', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select trigger event" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="memory_creation">Memory Creation</SelectItem>
+            <SelectItem value="transcript_processed">Transcript Processed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="webhook_url">Webhook URL</Label>
+        <Input
+          id="webhook_url"
+          name="webhook_url"
+          value={pluginData.external_integration.webhook_url}
+          onChange={(e) => onFieldChange('webhook_url', e.target.value)}
+          placeholder="https://your-webhook-url.com"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="setup_completed_url">Setup Completed URL</Label>
+        <Input
+          id="setup_completed_url"
+          name="setup_completed_url"
+          value={pluginData.external_integration.setup_completed_url}
+          onChange={(e) => onFieldChange('setup_completed_url', e.target.value)}
+          placeholder="https://your-setup-completed-url.com"
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="setup_instructions_file_path">Setup Instructions File Path</Label>
+        <Input
+          id="setup_instructions_file_path"
+          name="setup_instructions_file_path"
+          value={pluginData.external_integration.setup_instructions_file_path}
+          onChange={(e) => onFieldChange('setup_instructions_file_path', e.target.value)}
+          placeholder="/plugins/instructions/your-plugin/README.md"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="setup_instructions">Setup Instructions (Markdown)</Label>
+        <Textarea
+          id="setup_instructions"
+          name="setup_instructions"
+          value={pluginData.external_integration.setup_instructions || ''}
+          onChange={(e) => onFieldChange('setup_instructions', e.target.value)}
+          placeholder="# Setup Instructions\n\nProvide detailed setup instructions in markdown format..."
+          className="min-h-[200px] font-mono"
+        />
+      </div>
+    </div>
+  </div>
+);
+
 const PluginWizard = () => {
   // const [isAuthenticated] = useState(false);  // Add this state
+  const [setupInstructions, setSetupInstructions] = useState('');
   const [pluginData, setPluginData] = useState({
     id: '',
     name: '',
@@ -44,6 +111,7 @@ const PluginWizard = () => {
       webhook_url: '',
       setup_completed_url: 'null',
       setup_instructions_file_path: '',
+      setup_instructions: '',
       auth_steps: []
     }
   });
@@ -94,6 +162,7 @@ const PluginWizard = () => {
   };
 
   const handleSave = () => {
+    setSetupInstructions(pluginData.external_integration.setup_instructions);
     if (pluginData.capabilities.length === 0) {
       setErrors(prev => ({ ...prev, capabilities: 'Please select at least one capability.' }));
       return;
@@ -108,6 +177,11 @@ const PluginWizard = () => {
       image: `/plugins/logos/${pluginData.image}`
     };
 
+    // Remove setup instructions from JSON output
+    if (outputData.external_integration) {
+      delete outputData.external_integration.setup_instructions;
+    }
+
     if (!pluginData.capabilities.includes('chat')) {
       delete outputData.chat_prompt;
     }
@@ -119,73 +193,18 @@ const PluginWizard = () => {
     }
 
     setJsonOutput(JSON.stringify(outputData, null, 2));
-    console.log('JSON Output:', JSON.stringify(outputData, null, 2)); // Add this line
+    console.log('JSON Output:', JSON.stringify(outputData, null, 2));
   };
 
-  const ExternalIntegrationFields = () => (
-    <div className="space-y-4">
-      <Label className="font-semibold">External Integration Settings</Label>
-      <div className="grid gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="triggers_on">Triggers On</Label>
-          <Select
-            value={pluginData.external_integration.triggers_on}
-            onValueChange={(value) => handleExternalIntegrationChange('triggers_on', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select trigger event" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="memory_creation">Memory Creation</SelectItem>
-              <SelectItem value="transcript_processed">Transcript Processed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="webhook_url">Webhook URL</Label>
-          <Input
-            id="webhook_url"
-            name="webhook_url"
-            value={pluginData.external_integration.webhook_url}
-            onChange={(e) => handleExternalIntegrationChange('webhook_url', e.target.value)}
-            placeholder="https://your-webhook-url.com"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="setup_completed_url">Setup Completed URL</Label>
-          <Input
-            id="setup_completed_url"
-            name="setup_completed_url"
-            value={pluginData.external_integration.setup_completed_url}
-            onChange={(e) => handleExternalIntegrationChange('setup_completed_url', e.target.value)}
-            placeholder="https://your-setup-completed-url.com"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="setup_instructions_file_path">Setup Instructions File Path</Label>
-          <Input
-            id="setup_instructions_file_path"
-            name="setup_instructions_file_path"
-            value={pluginData.external_integration.setup_instructions_file_path}
-            onChange={(e) => handleExternalIntegrationChange('setup_instructions_file_path', e.target.value)}
-            placeholder="/plugins/instructions/your-plugin/README.md"
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  // Add this new handler
-  const handleExternalIntegrationChange = (field, value) => {
+  const handleExternalIntegrationChange = useCallback((field, value) => {
     setPluginData(prev => ({
       ...prev,
       external_integration: {
         ...prev.external_integration,
-        [field]: value
+        [field]: field === 'setup_completed_url' && value.trim() === '' ? null : value
       }
     }));
-  };
+  }, []);
 
   // const handleGitHubLogin = () => {
   //   // Add GitHub login logic here later
@@ -230,20 +249,40 @@ const PluginWizard = () => {
     const file = fileInput?.files[0];
 
     const formData = new FormData();
-    formData.append('pluginData', JSON.stringify(pluginData));
+
+    // Create plugin data
+    const pluginDataToSend = {
+      ...pluginData,
+      image: `/plugins/logos/${pluginData.image}`
+    };
+
+    // Remove capabilities that aren't enabled
+    if (!pluginData.capabilities.includes('chat')) {
+      delete pluginDataToSend.chat_prompt;
+    }
+    if (!pluginData.capabilities.includes('memories')) {
+      delete pluginDataToSend.memory_prompt;
+    }
+    if (!pluginData.capabilities.includes('external_integration')) {
+      delete pluginDataToSend.external_integration;
+    }
+
+    // Append data to formData
+    formData.append('pluginData', JSON.stringify(pluginDataToSend));
+    formData.append('pluginInstructions', setupInstructions);
     if (file) {
-      formData.append('file', file);
+      formData.append('pluginLogo', file);
     }
 
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      body: formData, // Send as FormData instead of JSON
+      body: formData,
     });
 
     const data = await response.json();
     if (response.ok) {
       alert(data.message);
-      window.location.href = '/success'; // Redirect to success page
+      window.location.href = '/success';
     } else {
       alert(data.error);
     }
@@ -388,7 +427,12 @@ const PluginWizard = () => {
             </div>
           )}
 
-          {pluginData.capabilities.includes('external_integration') && <ExternalIntegrationFields />}
+          {pluginData.capabilities.includes('external_integration') && (
+            <ExternalIntegrationFields
+              pluginData={pluginData}
+              onFieldChange={handleExternalIntegrationChange}
+            />
+          )}
 
           <div className="space-y-4">
             <Label className="font-semibold">Plugin Metadata</Label>
