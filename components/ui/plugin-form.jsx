@@ -9,6 +9,7 @@ import { Save, MessageSquare, Brain, Info, FileText, AlertTriangle, Link, Upload
 import { useState, useCallback, React } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 // import { siGithub } from 'simple-icons'
+import Image from "next/image"
 
 
 const PromptInfo = ({ icon, title, description, example }) => (
@@ -291,12 +292,20 @@ const PluginWizard = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-8">
+    <div className="flex justify-center items-center min-h-screen bg-black-800 p-4 md:p-8">
       <Card className="w-full max-w-4xl">
 
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl font-bold text-center">
-            OMI Plugin Creator - Plugins made easy!
+            <div className="flex flex-col items-center gap-2">
+              <Image
+                src="/omi-black.webp"
+                alt="OMI"
+                width={100}
+                height={44}
+              />
+              <span>Plugin Creator - Plugins made easy!</span>
+            </div>
           </CardTitle>
           {/* {!isAuthenticated && (
             <div className="flex justify-center mt-8">
